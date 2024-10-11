@@ -7,8 +7,11 @@ const User = require('./models/UserModel');
 const Preference = require('./models/PreferenceModel');
 const Task = require('./models/TaskModel');
 const Timetable = require('./models/TimetableModel');
+const OTP = require('./models/OTPModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+
 
 connectDb();
 const app = express();
@@ -292,6 +295,163 @@ app.delete('/timetable/cleanup/:userId', async (req, res) => {
         res.status(400).json({ error: 'Failed to cleanup timetable' });
     }
 });
+
+
+// Email transporter setup
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+// Generate OTP
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Send OTP email
+const sendOTPEmail = async (email, otp) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Password Reset OTP',
+        html: `
+            <h1>Password Reset Request</h1>
+            <p>Your OTP for password reset is: <strong>${otp}</strong></p>
+            <p>This OTP will expire in 10 minutes.</p>
+            <p>If you didn't request this password reset, please ignore this email.</p>
+        `
+    };
+
+    return await transporter.sendMail(mailOptions);
+};
+
+
+// Route to request password reset
+app.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Generate a new OTP
+        const otp = generateOTP();
+        console.log(otp)
+
+        // Calculate expiry time (current time + 10 minutes)
+        const expiryTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
+        // Check if an OTP already exists for this user and delete it
+        const existingotp = await OTP.findOne({ email });
+        if (existingotp) {
+            await OTP.deleteOne({ email });
+        }
+
+        const hashotp = await bcrypt.hash(otp, 10);
+
+        // Store the new OTP in the database
+        const newOTP = new OTP({
+            email: email,
+            otp: hashotp,
+            expiry: expiryTime
+        });
+        
+        await newOTP.save();
+
+        // Send OTP to the user's email
+        await sendOTPEmail(email, otp);
+
+        res.json({ success: true, message: 'OTP sent' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Error processing request' });
+    }
+});
+
+
+// Route to verify OTP
+app.post('/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Find the OTP in the database for this user
+        const storedOTP = await OTP.findOne({ email });
+
+        if (!storedOTP) {
+            return res.status(400).json({ success: false, message: 'OTP not found' });
+        }
+
+        // Check if the OTP has expired
+        if (storedOTP.expiry < Date.now()) {
+            // OTP has expired, so delete it from the database
+            const existingotp = await OTP.findOne({ email });
+            if (existingotp) {
+                await OTP.deleteOne({ email });
+            }
+            return res.status(400).json({ success: false, message: 'OTP has expired' });
+        }
+
+        const otpMatch = await bcrypt.compare(otp, storedOTP.otp)
+        // Check if the OTP matches
+        if (!otpMatch) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP' });
+        }
+
+        res.json({ success: true, message: 'OTP verified' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Error verifying OTP' });
+    }
+});
+
+
+// Route to reset password
+app.post('/reset-password', async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Verify the OTP (similar to the verify OTP route)
+        const storedOTP = await OTP.findOne({ email });
+
+        const otpMatch = await bcrypt.compare(otp, storedOTP.otp)
+
+        if (!storedOTP || !otpMatch || storedOTP.expiry < Date.now()) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
+        }
+
+        // Hash the new password and update the user's password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        // Clean up the OTP entry
+        const existingotp = await OTP.findOne({ email });
+        if (existingotp) {
+            await OTP.deleteOne({ email });
+        }
+
+        res.json({ success: true, message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, message: 'Error resetting password' });
+    }
+});
+
 
 // Starting the Server
 app.listen(port, () => console.log(`Server Started at PORT ${port}`));

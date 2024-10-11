@@ -29,8 +29,6 @@ function SignIn() {
 
     const closePopup = () => {
         setError('');
-        setUsername('');
-        setPassword('');
     };
 
     const navigate = useNavigate();
@@ -73,7 +71,6 @@ function SignIn() {
             if (err.response && err.response.data && err.response.data.message) {
                 setError(err.response.data.message);
             } else {
-                console.log(err);
                 setError("An unexpected error occurred");
             }
         }
@@ -101,7 +98,7 @@ function SignIn() {
                         <button className={styles.loginbutton} type="submit">Login</button>
                     </div>
                     <div className={styles.forgot}>
-                        <a href="#">Forgot Password</a>
+                        <Link to="/forgot-password">Forgot Password</Link>
                     </div>
                 </form>
                 <hr

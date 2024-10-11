@@ -7,6 +7,7 @@ import Tasks from './Components/Tasks/Tasks.jsx';
 import Timetable from './Components/Timetable/Timetable.jsx';
 import Preferences from './Components/Preferences/Preferences.jsx';
 import PrivateRoute from './Components/PrivateRoute/PrivateRoute.jsx';
+import ForgotPassword from './Components/ForgotPassword/ForgotPassword.jsx';
 
 function App() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -14,7 +15,8 @@ function App() {
         <BrowserRouter>
             <Routes>
             <Route exact path="/" element={isLoggedIn==true?<HomePage/>:<Login/>} />
-                <Route path="/login" element={<Login/>} />  
+                <Route path="/login" element={<Login/>} /> 
+                <Route path="/forgot-password" element={<ForgotPassword />} /> 
                 <Route path="/signup" element={<SignUp/>} />
                 <Route path="/home" element={<PrivateRoute element={HomePage}/>} />
                 <Route path="/profile" element={<PrivateRoute element={UserProfile}/>} />
