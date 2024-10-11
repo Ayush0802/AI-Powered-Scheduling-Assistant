@@ -8,6 +8,7 @@ import Timetable from './Components/Timetable/Timetable.jsx';
 import Preferences from './Components/Preferences/Preferences.jsx';
 import PrivateRoute from './Components/PrivateRoute/PrivateRoute.jsx';
 import ForgotPassword from './Components/ForgotPassword/ForgotPassword.jsx';
+import Settings from './Components/SettingsPage/SettingsPage.jsx';
 
 function App() {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/tasks" element={<PrivateRoute element={Tasks}/>} />
                 <Route path="/timetable" element={<PrivateRoute element={Timetable}/>} />
                 <Route path="/preferences" element={<PrivateRoute element={Preferences}/>} />
+                <Route path="/settings" element={<PrivateRoute element={Settings}/>} />
             </Routes>
         </BrowserRouter>
     );
