@@ -9,7 +9,7 @@ import Preferences from './Components/Preferences/Preferences.jsx';
 import PrivateRoute from './Components/PrivateRoute/PrivateRoute.jsx';
 
 function App() {
-    const isLoggedIn = window.localStorage.getItem("isLoggedIn")
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     return(
         <BrowserRouter>
             <Routes>
