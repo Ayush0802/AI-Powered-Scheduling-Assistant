@@ -166,6 +166,7 @@ const Timetable = () => {
 
     const handleScheduleUpdate = (newSchedule) => {
         setSchedule(newSchedule);
+        window.location.reload();
     };
 
     return (
