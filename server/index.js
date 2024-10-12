@@ -11,6 +11,7 @@ const OTP = require('./models/OTPModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const cron = require('node-cron');
 
 
 connectDb();
@@ -452,6 +453,61 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
+const sendEmail = async (to, subject, text) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to,
+        subject,
+        text
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${to}`);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+
+app.post('/send-notif', async (req, res) => {
+    const { to, subject, text } = req.body;
+    try {
+        await sendEmail(to, subject, text);
+        res.json({ message: 'Email sent successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error sending email', error });
+    }
+});
+
+// cron.schedule('* * * * *', async () => {
+//     try {
+//         const timetables = await Timetable.find({});
+//         const now = new Date();
+
+//         for (const timetable of timetables) {
+//             const user = await User.findById(timetable.userId);
+            
+//             for (const task of timetable.schedule) {
+//                 if (task.status === 'pending') {
+//                     const taskDateTime = new Date(`${task.date} ${task.time}`);
+//                     const timeDiff = taskDateTime.getTime() - now.getTime();
+//                     const minutesDiff = Math.floor(timeDiff / 60000);
+//                     // console.log(minutesDiff);
+
+//                     if (minutesDiff === 15) {
+//                         await sendEmail(
+//                             user.email,
+//                             `Upcoming Task: ${task.activity}`,
+//                             `Your task "${task.activity}" is due in 15 minutes at ${task.time} on ${task.date}.`
+//                         );
+//                     }
+//                 }
+//             }
+//         }
+//     } catch (error) {
+//         console.error('Error in cron job:', error);
+//     }
+// });
 
 // Starting the Server
 app.listen(port, () => console.log(`Server Started at PORT ${port}`));
