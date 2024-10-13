@@ -7,7 +7,8 @@ const User = require('./models/UserModel');
 const Preference = require('./models/PreferenceModel');
 const Task = require('./models/TaskModel');
 const Timetable = require('./models/TimetableModel');
-const OTP = require('./models/OTPModel')
+const OTP = require('./models/OTPModel');
+const Settings = require('./models/SettingsModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
@@ -479,35 +480,47 @@ app.post('/send-notif', async (req, res) => {
     }
 });
 
-// cron.schedule('* * * * *', async () => {
-//     try {
-//         const timetables = await Timetable.find({});
-//         const now = new Date();
+// Create settings
+app.post('/settings', async (req, res) => {
+    const data = req.body;
+    const pref = new Settings(data);
 
-//         for (const timetable of timetables) {
-//             const user = await User.findById(timetable.userId);
-            
-//             for (const task of timetable.schedule) {
-//                 if (task.status === 'pending') {
-//                     const taskDateTime = new Date(`${task.date} ${task.time}`);
-//                     const timeDiff = taskDateTime.getTime() - now.getTime();
-//                     const minutesDiff = Math.floor(timeDiff / 60000);
-//                     // console.log(minutesDiff);
+    try {
+        await pref.save();
+        res.status(201).json(pref);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
 
-//                     if (minutesDiff === 15) {
-//                         await sendEmail(
-//                             user.email,
-//                             `Upcoming Task: ${task.activity}`,
-//                             `Your task "${task.activity}" is due in 15 minutes at ${task.time} on ${task.date}.`
-//                         );
-//                     }
-//                 }
-//             }
-//         }
-//     } catch (error) {
-//         console.error('Error in cron job:', error);
-//     }
-// });
+// Update settings
+app.put('/settings/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const updatedSettingss = req.body;
+
+    try {
+        const result = await Settings.findOneAndUpdate({ userId }, updatedSettingss, { new: true, upsert: true });
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating settings', error });
+    }
+});
+
+// Fetch settings based on user ID
+app.get('/settings/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const settings = await Settings.findOne({ userId });
+        if (!settings) {
+            // If no settings found, return null or a default structure
+            res.status(400).json({ message: 'Error fetching settings', error });
+        } else {
+            res.status(200).json(settings);
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching settings', error });
+    }
+});
 
 // Starting the Server
 app.listen(port, () => console.log(`Server Started at PORT ${port}`));

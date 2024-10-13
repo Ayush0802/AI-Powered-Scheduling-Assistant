@@ -15,6 +15,12 @@ const Timetable = () => {
     const [timetableId, setTimetableId] = useState(null);
     const [filter, setFilter] = useState('pending'); // Default filter is 'pending'
     const navigate = useNavigate();
+    const [settings, setSettings] = useState({
+        userId: '',
+        fontstyle:'',
+        fontsize:'',
+        notiftime:15,
+    });
 
     const fetchTasks = async (userId) => {
         try {
@@ -95,7 +101,7 @@ const Timetable = () => {
                 console.log(minutesDiff);
 
                 // Check if the task is 15 minutes away
-                if (minutesDiff === 13) {
+                if (minutesDiff === settings.notiftime) {
                     sendEmailNotification(task, userEmail);
                 }
             }
@@ -116,7 +122,26 @@ const Timetable = () => {
         const userId = decodedToken.user.id;
         fetchTasks(userId);
         fetchpreferences(userId);
+        fetchSettings(userId);
     }, []);
+
+    
+
+    const fetchSettings = async (userId) => {
+        try {
+            const response = await fetch(`${base_url}/settings/${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                setSettings(data);
+                setSettingsExist(true);
+            } 
+            else {
+                setSettingsExist(false);
+            }
+        } catch (error) {
+            setSettingsExist(false);
+        }
+    };
 
     useEffect(() => {
         document.body.style.backgroundImage = `url(${bgimg})`;

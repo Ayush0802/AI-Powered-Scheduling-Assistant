@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const SettingsSchema = new mongoose.Schema({
+    userId: { 
+        type: String, 
+        required: true, 
+        unique: true 
+    },
     fontstyle: {
         type: String,
         required: true
