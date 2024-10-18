@@ -1,4 +1,4 @@
-import { BrowserRouter,Routes, Route} from 'react-router-dom';
+import { BrowserRouter, Routes, Route} from 'react-router-dom';
 import SignUp from "./Components/SignUp/SignUp.jsx"
 import Login from "./Components/SignIn/SignIn.jsx"
 import HomePage from "./Components/HomePage/HomePage.jsx"
@@ -15,7 +15,7 @@ function App() {
     return(
         <BrowserRouter>
             <Routes>
-            <Route exact path="/" element={isLoggedIn==true?<HomePage/>:<Login/>} />
+                <Route exact path="/" element={isLoggedIn==true?<HomePage/>:<Login/>} />
                 <Route path="/login" element={<Login/>} /> 
                 <Route path="/forgot-password" element={<ForgotPassword />} /> 
                 <Route path="/signup" element={<SignUp/>} />

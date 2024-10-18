@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from './SignIn.module.css';
 import { FaUser, FaLock } from "react-icons/fa";
 import axios from 'axios'
+import styles from './SignIn.module.css';
 import { base_url } from '../../assets/help';
 import bgimg from '../../assets/bg.jpg'
 
@@ -17,15 +17,13 @@ function SignIn() {
             document.body.style.backgroundImage = '';
             document.body.style.backgroundSize = '';
             document.body.style.backgroundRepeat = '';
-            document.body.style.backgroundPosition = '';
-            document.body.style.backgroundColor = '';
         };
     }, [bgimg]);
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [rememberMe, setRememberMe] = useState(false); // New state for Remember Me
+    const [rememberMe, setRememberMe] = useState(false); 
 
     const closePopup = () => {
         setError('');

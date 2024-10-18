@@ -1,10 +1,10 @@
 import React,{useEffect, useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from './SignUp.module.css';
 import { FaUser, FaLock, FaPhoneAlt } from "react-icons/fa";
 import { MdPerson4 } from "react-icons/md";
 import { IoMail } from "react-icons/io5";
 import axios from 'axios'
+import styles from './SignUp.module.css';
 import { base_url } from '../../assets/help';
 import bgimg from '../../assets/bg.jpg'
 
