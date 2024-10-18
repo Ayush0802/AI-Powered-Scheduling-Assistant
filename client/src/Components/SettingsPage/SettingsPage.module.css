@@ -1,18 +1,22 @@
-/* SettingsPage.module.css */
-
 .form{
     display: flex;
     flex-direction: column;
     justify-content: left;
 }
 
+.eachsetting{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+}
+
 .settingspage {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh; /* Full viewport height */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    height: 100vh; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
     padding: 20px;
 }
 
@@ -23,6 +27,7 @@
 }
 
 .settingspage label {
+    margin-right: 10px;
     font-size: 30px;
     color: #282828;
 }
@@ -30,35 +35,35 @@
 .settingspage select {
     padding: 10px;
     font-size: 1rem;
-    border-radius: 5px; /* Rounded corners */
-    border: 1px solid #ccc; /* Light gray border */
-    transition: border-color 0.3s ease; /* Smooth transition */
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+    transition: 0.3s ease-in-out; 
 }
 
 .settingspage select:hover {
-    border-color: #343434; /* Change border color on hover */
+    border-color: #343434; 
 }
 
 .settingspage select:focus {
-    outline: none; /* Remove default outline */
-    border-color: #343434; /* Change border color on focus */
+    outline: none; 
+    border-color: #343434; 
 }
 
 .settingspage input {
     padding: 10px;
     font-size: 1rem;
-    border-radius: 5px; /* Rounded corners */
-    border: 1px solid #ccc; /* Light gray border */
-    transition: border-color 0.3s ease; /* Smooth transition */
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+    transition: 0.3s ease-in-out; 
 }
 
 .settingspage input:hover {
-    border-color: #343434; /* Change border color on hover */
+    border-color: #343434; 
 }
 
 .settingspage input:focus {
-    outline: none; /* Remove default outline */
-    border-color: #343434; /* Change border color on focus */
+    outline: none; 
+    border-color: #343434; 
 }
 
 

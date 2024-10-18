@@ -24,8 +24,6 @@ function ForgotPassword() {
             document.body.style.backgroundImage = '';
             document.body.style.backgroundSize = '';
             document.body.style.backgroundRepeat = '';
-            document.body.style.backgroundPosition = '';
-            document.body.style.backgroundColor = '';
         };
     }, [bgimg]);
 

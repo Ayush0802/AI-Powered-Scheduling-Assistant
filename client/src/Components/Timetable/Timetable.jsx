@@ -100,7 +100,7 @@ const Timetable = () => {
                 const minutesDiff = Math.floor(timeDiff / 60000);
                 console.log(minutesDiff);
 
-                // Check if the task is 15 minutes away
+                // Check if the task is {notiftime} minutes away
                 if (minutesDiff === settings.notiftime) {
                     sendEmailNotification(task, userEmail);
                 }
@@ -179,27 +179,26 @@ const Timetable = () => {
 
     const handleTaskStatus = async (task, status) => {
         try {
-            const taskId = task._id;  // ID in the timetable database
-            const task_id = task.task_id; // ID in the tasks database
-            
-            // 1. Update the task status in the timetable database
+            const taskId = task._id;  
+            const task_id = task.task_id;
+
             const timetableResponse = await fetch(`${base_url}/timetable/${timetableId}/task/${taskId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ status }), // Update the status
+                body: JSON.stringify({ status }), 
             });
     
             if (timetableResponse.ok) {
                 const updatedTimetable = await timetableResponse.json();
-                setSchedule(updatedTimetable.schedule); // Update the state with the new schedule
+                setSchedule(updatedTimetable.schedule); 
     
-                // 2. Check if the same task exists with pending status in current schedule
+                // Check if the same task exists with pending status in current schedule
                 const hasPendingTask = updatedTimetable.schedule.some(
                     scheduleItem => scheduleItem.task_id === task_id && 
                                   scheduleItem.status === 'pending' &&
-                                  scheduleItem._id !== taskId  // Exclude the current task being updated
+                                  scheduleItem._id !== taskId  
                 );
     
                 // Only update the tasks database if there are no pending instances
@@ -209,7 +208,7 @@ const Timetable = () => {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ status }), // Update the status in the tasks database
+                        body: JSON.stringify({ status }), 
                     });
     
                     if (tasksResponse.ok) {
@@ -228,7 +227,6 @@ const Timetable = () => {
         }
     };
     
-    // Filter tasks based on the current filter state
     const filteredSchedule = schedule ? schedule.filter(item => item.status === filter) : [];
 
     if (!schedule) {

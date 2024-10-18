@@ -13,15 +13,13 @@
 
 .navCenter {
     list-style-type: none;
-    /* position:absolute; */
     margin: 0;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 30px; /* Gap between tasks and timetable */
+    gap: 30px; 
    margin-right: 180px; 
-    /* padding-bottom: 1px; */
     margin-top: -5px;   
 }
 
@@ -38,16 +36,9 @@
     transition: 0.3s ease-in-out;
 }
 
-/* Hover effect */
 .navCenter li a:hover {
     background-color: rgb(86, 86, 86);
 }
-
-/* Active effect */
-/* .navCenter li a:active {
-    background-color: #4CAF50; 
-    color: white;
-} */
 
 .navCenter li a.active {
     background-color: #eaeaea;
@@ -69,10 +60,9 @@
     border-radius: 30px;
     color: white;
     text-align: center;
-    /* padding: 8px 20px; */
     text-decoration: none;
     font-size: 29px;
-    transition: background-color 0.3s ease-in-out;
+    transition: 0.3s ease-in-out;
 }
 .navbar h1{
     margin-top: 15px;
@@ -92,13 +82,11 @@
     color: white;
 }
 
-/* User section styles */
 .userSection {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* display: inline-block; */
     cursor: pointer;
     margin-right: 30px;
     margin-bottom: 5px;
@@ -117,10 +105,9 @@
     font-size: 20px;
 }
 
-/* Vertical dropdown menu */
 .dropdownMenu {
     position: absolute;
-    top: 75px; /* Adjusted so the dropdown starts below the user circle */
+    top: 75px; 
     right: 0;
     background-color: white;
     border-radius: 10px;
@@ -132,8 +119,8 @@
     margin: 0;
     margin-right: 2rem;
     display: flex;
-    flex-direction: column; /* Makes the dropdown vertical */
-    width: 160px; /* Adjust width of the dropdown */
+    flex-direction: column; 
+    width: 160px;
     overflow: hidden;
 
 }
@@ -141,7 +128,7 @@
 .dropdownMenu li {
     padding: 12px 16px;
     text-align: left;
-    color: black; /* Text color for the dropdown items */
+    color: black; 
 }
 
 .dropdownMenu li:hover {
@@ -149,7 +136,6 @@
     cursor: pointer;
 }
 
-/* Dropdown menu links */
 .dropdownMenu li a {
     color: black;
     text-decoration: none;

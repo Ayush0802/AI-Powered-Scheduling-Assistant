@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 import styles from './Preferences.module.css';
 import Navbar from "../Navbar/Navbar";
@@ -36,8 +35,8 @@ const Preferences = () => {
     const [newGoal, setNewGoal] = useState('');
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
+    // Fetch Prefernces using the userid found from local Storage
     useEffect(() => {
         const token = localStorage.getItem('access_token');
         if (token) {
@@ -80,7 +79,7 @@ const Preferences = () => {
                 ...preferences,
                 goals: [...preferences.goals, newGoal],
             });
-            setNewGoal(''); // Clear the input after adding
+            setNewGoal(''); 
         }
     };
 
@@ -103,7 +102,7 @@ const Preferences = () => {
         });
 
         const url = preferencesExist ? `${base_url}/preferences/${decodedToken.user.id}`: `${base_url}/preferences`;
-        const method = preferencesExist ? 'PUT' : 'POST'; // Determine method based on existence of preferences
+        const method = preferencesExist ? 'PUT' : 'POST'; 
 
         try {
             const response = await fetch(url, {

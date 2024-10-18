@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import styles from './ChatBot.module.css';
-// import { base_url } from '../../assets/help';
-// import { jwtDecode } from 'jwt-decode';
-// import { useNavigate } from 'react-router-dom';
 
 const ChatBot = ({ preferences, tasks,schedule }) => {
   const [messages, setMessages] = useState([

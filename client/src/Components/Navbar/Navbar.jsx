@@ -11,7 +11,7 @@ function Navbar() {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
-    // Get token from localStorage and decode it
+    // Fetch User Id from Local Storage token
     useEffect(() => {
         const token = localStorage.getItem('access_token');
         if (token) {
@@ -21,11 +21,11 @@ function Navbar() {
                 setUser(userInfo);
             } catch (error) {
                 console.error("Failed to decode token:", error);
-                // Handle invalid or expired token, maybe log the user out
             }
         }
     }, []);
 
+    // To handle Dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

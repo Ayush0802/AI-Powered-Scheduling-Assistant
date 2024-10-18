@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import {jwtDecode} from 'jwt-decode'; // Ensure this is the correct import
+import { jwtDecode } from 'jwt-decode'; 
 import styles from './UserProfile.module.css';
 import Navbar from '../Navbar/Navbar';
 import { base_url } from '../../assets/help';
 import bgimg from '../../assets/bg.jpg'
 
 const UserProfile = () => {
-    const [user, setUser] = useState(null);
     const [formData, setFormData] = useState({ username: '', email: '', fullname: '', phone: '', id: '' });
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
@@ -20,8 +19,6 @@ const UserProfile = () => {
             document.body.style.backgroundImage = '';
             document.body.style.backgroundSize = '';
             document.body.style.backgroundRepeat = '';
-            document.body.style.backgroundPosition = '';
-            document.body.style.backgroundColor = '';
         };
     }, [bgimg]);
 
@@ -30,9 +27,10 @@ const UserProfile = () => {
         if (token) {
             try {
                 const decodedToken = jwtDecode(token);
+
                 // Set user id to fetch user details later
                 setFormData({ ...formData, id: decodedToken.user.id });
-                fetchUserDetails(decodedToken.user.id); // Fetch user details
+                fetchUserDetails(decodedToken.user.id); 
             } catch (error) {
                 console.error("Failed to decode token:", error);
             }
@@ -44,8 +42,6 @@ const UserProfile = () => {
             const response = await fetch(`${base_url}/signup/${userId}`);
             if (response.ok) {
                 const data = await response.json();
-                setUser(data); // Set user data
-                // Update form data with fetched user info
                 setFormData({
                     username: data.username,
                     fullname: data.fullname,
@@ -70,19 +66,17 @@ const UserProfile = () => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); 
         try {
             const response = await fetch(`${base_url}/signup/${formData.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData), // Use formData for the body
+                body: JSON.stringify(formData), 
             });
 
             if (response.ok) {
-                const updatedUser = await response.json();
-                setUser(updatedUser); // Update user state with the returned user details
                 setSuccess('User details edited successfully!');
                 setTimeout(() => {
                     setSuccess('');
@@ -104,22 +98,10 @@ const UserProfile = () => {
     return (
         <>
             <Navbar />
-            {error && (
-                <div className={styles.modalA}>
-                    <div className={styles.modalContentA}>
-                        <span className={styles.close} onClick={() => setError('')}>&times;</span>
-                        <p>{error}</p>
-                    </div>
-                </div>
-            )}
+            
+            {error && <p className={styles.errorMessage}>{error}</p>}
+            {success && <p className={styles.successMessage}>{success}</p>}
 
-            {success && (
-                <div className={styles.modalA}>
-                    <div className={styles.modalContentA}>
-                        <p>{success}</p>
-                    </div>
-                </div>
-            )}
             <div className={styles.profileContainer}>
                 <h1>User Profile</h1>
                 <form onSubmit={handleSubmit} className={styles.profileForm}>

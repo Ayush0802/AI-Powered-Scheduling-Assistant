@@ -8,9 +8,8 @@ import {jwtDecode} from 'jwt-decode';
 import { base_url } from '../../assets/help';
 
 const SettingsPage = () => {
-    const [fonts, setFonts] = useState([]); // Store the font list
+    const [fonts, setFonts] = useState([]); 
 
-    // Set background image
     useEffect(() => {
         document.body.style.backgroundImage = `url(${bgimg})`;
         document.body.style.backgroundSize = 'cover';
@@ -33,8 +32,8 @@ const SettingsPage = () => {
     });
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
+    // Fetch Prefernces using the userid found from local Storage
     useEffect(() => {
         const token = localStorage.getItem('access_token');
         if (token) {
@@ -82,7 +81,7 @@ const SettingsPage = () => {
         });
 
         const url = settingsExist ? `${base_url}/settings/${decodedToken.user.id}`: `${base_url}/settings`;
-        const method = settingsExist ? 'PUT' : 'POST'; // Determine method based on existence of settings
+        const method = settingsExist ? 'PUT' : 'POST'; 
 
         try {
             const response = await fetch(url, {
@@ -136,16 +135,12 @@ const SettingsPage = () => {
     // Handle font selection and dynamically load the selected font
     useEffect(() => {
 
-        // Dynamically load the selected Google Font
         if (settings.fontstyle && settings.fontstyle !== '') {
             const link = document.createElement('link');
-            // Apply replace method outside the template literal
             const fontFamily = settings.fontstyle.replace(/ /g, '+');
             link.href = `https://fonts.googleapis.com/css2?family=${fontFamily}&display=swap`;
             link.rel = 'stylesheet';
             document.head.appendChild(link);
-        
-            // Apply the selected font globally
             document.body.style.fontFamily = settings.fontstyle;
         } 
         
@@ -155,35 +150,31 @@ const SettingsPage = () => {
     // Handle font size selection
     useEffect(() => {
         if (settings.fontsize!='') {
-            document.body.style.fontSize = settings.fontsize; // Apply selected font size globally
+            document.body.style.fontSize = settings.fontsize; 
         }
     });
 
     // Available font sizes
     const fontSizes = ['12px', '14px', '16px', '18px', '20px','22px', '24px', '26px', '28px','30px', '32px'];
 
-    // Fetch the current font and size from the document body
-    const getCurrentFontAndSize = () => {
-        const computedStyle = getComputedStyle(document.body);
-        return {
-            font: computedStyle.fontFamily,
-            size: computedStyle.fontSize,
-        };
-    };
-
-    const { font: currentFont, size: currentSize } = getCurrentFontAndSize();
-
     return (
         <>
             <Navbar />
-            <div className={styles.settingspage} style={{ padding: '20px'}}>
+            <div className={styles.settingspage}>
+
                 {error && <div className={styles.error}>{error}</div>}
                 {success && <div className={styles.success}>{success}</div>}
+
                 <h1>Settings</h1>
                 <form onSubmit={handleSubmit} className={styles.form}>
-                    <div style={{ display:'flex',flexDirection:'row'}}>
-                        <label style={{ marginRight: '10px'}}>Font Style:</label>
-                        <select id="fontstyle" name='fontstyle' value={settings.fontstyle} onChange={handleChange}>
+                    <div className={styles.eachsetting}>
+                        <label>Font Style:</label>
+                        <select 
+                            id="fontstyle" 
+                            name='fontstyle' 
+                            value={settings.fontstyle} 
+                            onChange={handleChange}
+                        >
                             <option value={settings.fontstyle}>{settings.fontstyle}</option>
                             {fonts.map((font, index) => (
                                 <option key={index} value={font.family}>
@@ -192,9 +183,14 @@ const SettingsPage = () => {
                             ))}
                         </select>
                     </div>
-                    <div style={{ marginTop: '20px',display:'flex',flexDirection:'row' }}>
-                        <label style={{ marginRight: '10px' }}>Font Size:</label>
-                        <select id="fontsize" name='fontsize' value={settings.fontsize} onChange={handleChange}>
+                    <div className={styles.eachsetting}>
+                        <label>Font Size:</label>
+                        <select 
+                            id="fontsize" 
+                            name='fontsize' 
+                            value={settings.fontsize} 
+                            onChange={handleChange}
+                        >
                             <option value={settings.fontsize}>{settings.fontsize}</option>
                             {fontSizes.map((size, index) => (
                                 <option key={index} value={size}>
@@ -203,8 +199,8 @@ const SettingsPage = () => {
                             ))}
                         </select>
                     </div>
-                    <div style={{ marginTop: '20px',display:'flex',flexDirection:'row' }}>
-                        <label style={{ marginRight: '10px' }}>Notification Time:</label>
+                    <div className={styles.eachsetting}>
+                        <label>Notification Time:</label>
                         <input
                             type="number"
                             name="notiftime"

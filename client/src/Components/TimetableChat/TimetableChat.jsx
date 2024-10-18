@@ -64,10 +64,6 @@ const TimetableChat = ({ preferences, tasks,schedule, onScheduleUpdate }) => {
       if (data.schedule) {
         onScheduleUpdate(data.schedule);
       }
-
-      // setTimeout(() => {
-      //   navigate('/timetable');
-      // }, 200);
       
     } catch (error) {
       console.error('Error:', error);
