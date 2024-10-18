@@ -3,30 +3,32 @@ const dotenv = require('dotenv').config();
 const connectDb = require('./config/dbConnection');
 const cors = require('cors');
 const asyncHandler = require('express-async-handler');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const User = require('./models/UserModel');
 const Preference = require('./models/PreferenceModel');
 const Task = require('./models/TaskModel');
 const Timetable = require('./models/TimetableModel');
 const OTP = require('./models/OTPModel');
 const Settings = require('./models/SettingsModel');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const cron = require('node-cron');
+
 
 
 connectDb();
 const app = express();
-const port = 5002;
+const port = process.env.PORT || 5002;
 
 app.use(express.json());
 app.use(cors());
+
+
 
 // SignUp Page
 app.get('/signup/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findById(id); // Use findById instead of find
+        const user = await User.findById(id); 
         
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -38,7 +40,6 @@ app.get('/signup/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' })
     }
 });
-
 
 app.post('/signup', asyncHandler(async (req, res) => {
     const { username, fullname, email, phone, password } = req.body;
@@ -76,6 +77,8 @@ app.put('/signup/:id', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+
 
 // SignIn Page
 app.post('/login', asyncHandler(async (req, res) => {
@@ -119,7 +122,9 @@ app.post('/login', asyncHandler(async (req, res) => {
 }));
 
 
-// Fetch preferences based on user ID
+
+// Preferences Page
+// Fetch Preferences based on UserId
 app.get('/preferences/:userId', async (req, res) => {
     const { userId } = req.params;
     try {
@@ -161,6 +166,9 @@ app.put('/preferences/:userId', async (req, res) => {
     }
 });
 
+
+
+// Tasks Page
 // Add a new task
 app.post('/tasks', async (req, res) => {
     const { userId, taskName, category, deadline_date,deadline_time, estimatedTime, priority,status } = req.body;
@@ -208,6 +216,53 @@ app.delete('/tasks/:id', async (req, res) => {
 });
 
 
+
+// Settings Page
+// Create settings
+app.post('/settings', async (req, res) => {
+    const data = req.body;
+    const pref = new Settings(data);
+
+    try {
+        await pref.save();
+        res.status(201).json(pref);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Update settings
+app.put('/settings/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const updatedSettingss = req.body;
+
+    try {
+        const result = await Settings.findOneAndUpdate({ userId }, updatedSettingss, { new: true, upsert: true });
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating settings', error });
+    }
+});
+
+// Fetch settings based on user ID
+app.get('/settings/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const settings = await Settings.findOne({ userId });
+        if (!settings) {
+            // If no settings found, return null or a default structure
+            res.status(400).json({ message: 'Error fetching settings', error });
+        } else {
+            res.status(200).json(settings);
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching settings', error });
+    }
+});
+
+
+
+// Timetable Page
 // Store timetable
 app.post('/timetable', async (req, res) => {
     const { userId, schedule } = req.body;
@@ -251,19 +306,11 @@ app.put('/timetable/:timetableId/task/:taskId', async (req, res) => {
     const { status } = req.body;
     try {
         const timetable = await Timetable.findById(timetableId);
-        // const taskObjectId = new mongoose.Types.ObjectId(taskId);
-        // Use find instead of findIndex
         const task = timetable.schedule.find(item => item._id.toString() === taskId);
 
         if (task) {
-            // Update the status directly on the found task
             task.status = status;
             await timetable.save();
-            
-            // If task is missed, update the task in Task collection
-            // if (status === 'missed') {
-            //     await Task.findByIdAndUpdate(taskId, { status: 'missed' });
-            // }
         }
 
         res.status(200).json(timetable);
@@ -272,31 +319,6 @@ app.put('/timetable/:timetableId/task/:taskId', async (req, res) => {
     }
 });
 
-
-// Clean up expired tasks
-app.delete('/timetable/cleanup/:userId', async (req, res) => {
-    const { userId } = req.params;
-    try {
-        const timetable = await Timetable.findOne({ userId }).sort({ date: -1 });
-        if (timetable) {
-            const currentTime = new Date();
-            timetable.schedule = timetable.schedule.filter(item => {
-                if (item.deadline && new Date(item.deadline) < currentTime) {
-                    if (item.status === 'pending') {
-                        // Mark task as missed if deadline passed and status still pending
-                        Task.findByIdAndUpdate(item.taskId, { status: 'missed' }).exec();
-                    }
-                    return false;
-                }
-                return true;
-            });
-            await timetable.save();
-        }
-        res.status(200).json(timetable);
-    } catch (error) {
-        res.status(400).json({ error: 'Failed to cleanup timetable' });
-    }
-});
 
 
 // Email transporter setup
@@ -330,7 +352,26 @@ const sendOTPEmail = async (email, otp) => {
     return await transporter.sendMail(mailOptions);
 };
 
+// To send email
+const sendEmail = async (to, subject, text) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to,
+        subject,
+        text
+    };
 
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent to ${to}`);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+};
+
+
+
+// Implementing Forgot Password Functionality
 // Route to request password reset
 app.post('/forgot-password', async (req, res) => {
     try {
@@ -375,7 +416,6 @@ app.post('/forgot-password', async (req, res) => {
     }
 });
 
-
 // Route to verify OTP
 app.post('/verify-otp', async (req, res) => {
     try {
@@ -416,7 +456,6 @@ app.post('/verify-otp', async (req, res) => {
     }
 });
 
-
 // Route to reset password
 app.post('/reset-password', async (req, res) => {
     try {
@@ -454,22 +493,9 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
-const sendEmail = async (to, subject, text) => {
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to,
-        subject,
-        text
-    };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Email sent to ${to}`);
-    } catch (error) {
-        console.error('Error sending email:', error);
-    }
-};
 
+// Implementing Notification Functionality
 app.post('/send-notif', async (req, res) => {
     const { to, subject, text } = req.body;
     try {
@@ -480,47 +506,7 @@ app.post('/send-notif', async (req, res) => {
     }
 });
 
-// Create settings
-app.post('/settings', async (req, res) => {
-    const data = req.body;
-    const pref = new Settings(data);
 
-    try {
-        await pref.save();
-        res.status(201).json(pref);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
-// Update settings
-app.put('/settings/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const updatedSettingss = req.body;
-
-    try {
-        const result = await Settings.findOneAndUpdate({ userId }, updatedSettingss, { new: true, upsert: true });
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating settings', error });
-    }
-});
-
-// Fetch settings based on user ID
-app.get('/settings/:userId', async (req, res) => {
-    const { userId } = req.params;
-    try {
-        const settings = await Settings.findOne({ userId });
-        if (!settings) {
-            // If no settings found, return null or a default structure
-            res.status(400).json({ message: 'Error fetching settings', error });
-        } else {
-            res.status(200).json(settings);
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching settings', error });
-    }
-});
 
 // Starting the Server
 app.listen(port, () => console.log(`Server Started at PORT ${port}`));

@@ -154,11 +154,6 @@ const Timetable = () => {
             const userId = decodedToken.user.id;
 
             try {
-                // Clean up expired tasks
-                await fetch(`${base_url}/timetable/cleanup/${userId}`, {
-                    method: 'DELETE'
-                });
-
                 // Fetch latest timetable
                 const response = await fetch(`${base_url}/timetable/${userId}`);
                 if (response.ok) {
