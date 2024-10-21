@@ -22,6 +22,21 @@ const Timetable = () => {
         notiftime:15,
     });
 
+    const fetchSettings = async (userId) => {
+        try {
+            const response = await fetch(`${base_url}/settings/${userId}`);
+            const data = await response.json();
+            if (response.ok) {
+                setSettings(data);
+            } 
+            else {
+                console.log("error")
+            }
+        } catch (error) {
+            console.log("error")
+        }
+    };
+
     const fetchTasks = async (userId) => {
         try {
             const response = await fetch(`${base_url}/tasks/${userId}`);
@@ -99,9 +114,11 @@ const Timetable = () => {
                 const timeDiff = taskDateTime.getTime() - now.getTime();
                 const minutesDiff = Math.floor(timeDiff / 60000);
                 console.log(minutesDiff);
+                console.log(settings.notiftime);
 
                 // Check if the task is {notiftime} minutes away
-                if (minutesDiff === settings.notiftime) {
+                if (minutesDiff === parseInt(settings.notiftime,10)) {
+                    console.log("hii");
                     sendEmailNotification(task, userEmail);
                 }
             }
@@ -125,25 +142,8 @@ const Timetable = () => {
         fetchSettings(userId);
     }, []);
 
-    
-
-    const fetchSettings = async (userId) => {
-        try {
-            const response = await fetch(`${base_url}/settings/${userId}`);
-            if (response.ok) {
-                const data = await response.json();
-                setSettings(data);
-                setSettingsExist(true);
-            } 
-            else {
-                setSettingsExist(false);
-            }
-        } catch (error) {
-            setSettingsExist(false);
-        }
-    };
-
     useEffect(() => {
+
         document.body.style.backgroundImage = `url(${bgimg})`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundRepeat = 'no-repeat';
